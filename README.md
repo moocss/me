@@ -1,2 +1,4 @@
-# moocss.github.com
-moocss blog
+# Blog
+
+http://moocss.github.io/me
+
