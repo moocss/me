@@ -1,7 +1,6 @@
 var VERSION = 'sw-cache-v1';
 var precacheFiles = [
-  './',
-  './index.html',
+  './offline.html',
 
   './static/css/base.css',
   './static/css/app.css',
@@ -43,17 +42,16 @@ self.addEventListener('activate', function(event) { // 激活后
 
 // 捕获请求并返回缓存数据
 self.addEventListener('fetch', function(event) { // 请求后
+  var cached = caches.match(event.request);
+  var fallback = caches.match('offline.html');
+  var fetched = fetch(event.request);
+
   // event.respondWith()匹配缓存返回结果，匹配不成就直接请求.
-  event.respondWith(caches.match(event.request).catch(function(e) {
-    // 如果捕获到异常错误，直接返回 fetch() 请求资源
-    console.warn('Couldn\'t serve response for "%s" from cache: %O', event.request.url, e);
-    return fetch(event.request);
-  }).then(function(response) {
-    caches.open(VERSION).then(function(cache) {
-      cache.put(event.request, response);
-    });
-    return response.clone();
-  }).catch(function(e) {
-    return caches.match('./static/images/dinosaur.png');
-  }));
+  event.respondWith(
+    cached.then(function(response){
+      return response || fetched;
+    }).catch(function(_){
+      return fallback;
+    })
+  );
 });

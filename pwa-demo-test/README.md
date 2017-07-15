@@ -256,3 +256,4 @@ PWA 作为下一代 Web 应用模型，其尝试解决的是 web 平台本身的
   - 下一代 Web 应用模型 — Progressive Web App (https://zhuanlan.zhihu.com/p/25167289)
   - Service Worker 生命周期那些事儿 (https://www.zhengqingxin.com/post/lifecycle.html)
   - Service Worker 生命周期 (http://www.wemlion.com/2016/the-service-worker-lifecycle/)
+  - The offline cookbook（https://jakearchibald.com/2014/offline-cookbook/）
