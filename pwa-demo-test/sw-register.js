@@ -1,8 +1,6 @@
 function registerValidSW(swUrl) {
   navigator.serviceWorker
-    .register(swUrl, {
-      scope: './'
-    })
+    .register(swUrl)
     .then(function(registration) {
       $('#isSuccess').text('注册成功');
       var serviceWorker;
