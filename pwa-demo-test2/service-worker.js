@@ -1,6 +1,7 @@
-var VERSION = 'sw-cache-v1';
+var CACHE_NAME = 'sw-cache-v1';
 var precacheFiles = [
   './',
+  './index.html',
   './offline.html',
 
   './static/css/base.css',
@@ -9,17 +10,19 @@ var precacheFiles = [
   './static/js/libs/jquery.min.js',
   './static/js/app.js',
 
-  './static/images/dinosaur.png'
+  "./static/images/dinosaur.png",
+  "./static/images/pwa-logo.png"
 ];
 
 /**
+ * Service Worker 生命周期
  * parsed → installing → installed → activating → activated → redundant。
  */
 
 // 缓存
 self.addEventListener('install', function(event) {  // 安装后
   event.waitUntil(
-    caches.open(VERSION).then(function(cache) {
+    caches.open(CACHE_NAME).then(function(cache) {
       return cache.addAll(precacheFiles);
     })
     .then(self.skipWaiting())
@@ -33,7 +36,7 @@ self.addEventListener('activate', function(event) { // 激活后
       return Promise.all(
         cacheNames.map(function(cacheName) {
           // 如果当前版本和缓存版本不一致
-          if (cacheName !== VERSION) {
+          if (cacheName !== CACHE_NAME) {
             return caches.delete(cacheName);
           }
         })

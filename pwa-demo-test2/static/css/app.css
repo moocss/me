@@ -1,0 +1,57 @@
+@charset "utf-8";
+
+/* --------------------------------------------------------------
+  page styles
+-------------------------------------------------------------- */
+
+.for-ie-suckers {
+  padding: 20px;
+  text-align: center;
+  background-color: #fcf8e3;
+  color: #a94442;
+}
+
+.container {
+  width: 540px;
+}
+
+.label:empty::before {
+  content: '缺省';
+  color: #888;
+}
+
+.box {
+  width: 540px;
+  margin: 20px auto 0;
+  border: 1px solid #ddd;
+  padding: 20px;
+}
+
+.box h3 {
+  margin-bottom: 10px;
+  border-left: 3px solid #f00;
+  text-indent: 10px;
+  font-size: 18px;
+}
+
+.worker-lifecycle li {
+  position: relative;
+  border-bottom: 1px solid #eee;
+  padding: 10px 0;
+  text-indent: 15px;
+}
+.worker-lifecycle li:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 4px;
+  height: 4px;
+  margin-top: -2px;
+  background-color: #333;
+  font-size: 0;
+  line-height: 0;
+}
+.worker-lifecycle li:last-child {
+  border-bottom: 0 none;
+}

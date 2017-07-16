@@ -6,7 +6,7 @@ Web App 与 原生应用相比，还是有很大的差距，我们开始慢慢�
 但是 Web 应用免于安装、随叫随到、无需更新等优点，瑕不掩瑜。
 
 到底有没有一种方法能构建一个和原生应用一样级别体验的应用，这个时候 Progressive Web App, 简称 PWA，给我们带来了比较靠谱的解决方案， 它是提升 Web App 的体验的一种新方法，能给用户原生应用的体验， PWA 本质上就是 Web App，只不过借助一些新技术，也具备了 Native App 的一些特性，兼具 Web App 和 Native App 的优点，
-PWA 并不是具体指某一种前沿的技术或者某一个单一的知识点，它拥有一个完善的技术体系，我们从英文缩写来看就能看出来，这是一个渐进式的 Web App。主要是增强 Web App 的体验，使站点具有类似原生应用的功能和体验，如：无版本问题、可发现、站点可添加至主屏幕、全屏方式运行、支持离线缓存、消息推送等。
+PWA 并不是具体指某一种前沿的技术或者某一个单一的知识点，它拥有一个完善的技术体系，我们从英文缩写来看就能看出来，这是一个渐进式的 Web App。它主要是增强 Web App 的体验，使站点具有类似原生应用的功能和体验，如：无版本问题、可发现、站点可添加至主屏幕、全屏方式运行、支持离线缓存、消息推送等。
 
 在这个强大PWA支持阵营中，苹果的 Safari 落伍了，表现上都没有微软的 Edge 那么积极; 并且 Safari 很长的一段时间内很难得到改善。
 事实上，PWA本身与其它技术方案并不冲突，比如各类的Web性能优化方案，以及基本的H5技术仍然可以落地共存，PWA只是在其之上进行更进一步，这正是其所谓渐进式命名的由来。
@@ -41,8 +41,7 @@ PWA 并不是具体指某一种前沿的技术或者某一个单一的知识点�
 - Service Worker：
 缓存，离线开发。
 Service Worker是浏览器在后台独于网页运行的脚本,它就像一个位于浏览器与网络络之间的客户端代理,可以拦截、处理、响应流经的 HTTP 请求;
-配合随之引入的 Cache Storage API,你可以自由管理 HTTP 请求文件粒度的缓存,这使得Service Worker 可以从缓存中向 web 应用提供资源,即使是在离线的环境下。为了让站点具有更好的离线体验，PWA 提供了更好的缓存 API （详见 web 存储）和缓存管理方式 Service Worker。
-具体的缓存策略仍然需要开发者根据项目的实际需要进行开发；这部分需要我们重点关注，主要涉及离线资源缓存的配置管理与更新，项目默认缓存所有静态资源，并提供了简单的缓存更新机制。如果您想缓存指定内容，或配置部分动态缓存的内容及其他相关问题，均可参考 维护 service-worker.js 文件 和 Service Worker 与页面通信 两部分内容来寻找解决方案。
+配合随之引入的 Cache Storage API,你可以自由管理 HTTP 请求文件粒度的缓存,这使得Service Worker 可以从缓存中向 web 应用提供资源,即使是在离线的环境下。为了让站点具有更好的离线体验，PWA 提供了更好的缓存 API 和缓存管理方式 Service Worker。
 
 - App Shell：
 同样是为了让站点具有更好的离线体验，除了要在缓存策略上下功夫，站点 UI 设计上也需要遵循一定的规范（如 App Shell 模型 和 离线 UX 注意事项 ），以至于站点在页面切换、内容加载、加载出错、弱网断网等等情况下不会给用户显示个大白屏。在解决了上面两个必须的关键问题后，您可以对页面渲染中的白屏问题做进一步的优化，App Shell 就是其中之一。
@@ -201,6 +200,199 @@ installing 事件失败
 activating 事件失败
 
 新的 Service Worker 替换其成为激活态 worker
+
+
+## 列子
+说了那么多的概念，来一个列子把这些知识点串联一下。以更好的理解 Service Worker的生命周期， 这个例子很简单，就是想检查浏览器是否支持Service Worker，记录Service Worker的生命周期（当前状态），然后通过加载service-worker.js来注册一个服务。
+
+```html
+		<h3>测试信息</h3>
+		<ul class="worker-lifecycle">
+			<li>浏览器是否支持：<span class="label" id="isSupport"></span></li>
+			<li>service worker是否注册成功：<span class="label" id="isSuccess"></span></li>
+			<li>当前注册状态：<span class="label" id="state"></span></li>
+			<li>当前service worker状态：<span class="label" id="swState"></span></li>
+		</ul>
+```
+
+```html
+	<script src="./static/js/libs/jquery.min.js"></script>
+	<script>
+		// sw-register.js
+		(function () {
+			var script = document.createElement('script');
+			var firstScript = document.getElementsByTagName('script')[0];
+			script.type = 'text/javascript';
+			script.async = true;
+			script.src = 'sw-register.js?v=' + Date.now();
+			firstScript.parentNode.insertBefore(script, firstScript);
+		})();
+	</script>
+```
+
+sw-register.js
+
+```js
+function registerValidSW(swUrl) {
+  navigator.serviceWorker
+    .register(swUrl)
+    .then(function(registration) {
+      $('#isSuccess').text('注册成功');
+      var serviceWorker;
+      if (registration.installing) {
+        serviceWorker = registration.installing;
+        $('#state').text('installing');
+      } else if (registration.waiting) {
+        serviceWorker = registration.waiting;
+        $('#state').text('waiting');
+      } else if (registration.active) {
+        serviceWorker = registration.active;
+        $('#state').text('active');
+      }
+      if (serviceWorker) {
+        $('#swState').text(serviceWorker.state);
+        serviceWorker.addEventListener('statechange', function (e) {
+          $('#swState').append('&emsp;状态变化为' + e.target.state);
+        });
+      }
+    })
+    .catch(function (error) {
+      $('#isSuccess').text('注册没有成功');
+    });
+}
+
+function register() {
+  if ('serviceWorker' in navigator) {
+    $('#isSupport').text('支持');
+    window.addEventListener('load', () => {
+      // 开始注册 service worker
+      registerValidSW('./service-worker.js');
+    });
+  } else {
+    $('#isSupport').text('不支持');
+  }
+}
+
+function unregister() {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.ready.then(function(registration) {
+      registration.unregister();
+    });
+  }
+}
+
+// Run.
+register();
+
+```
+
+```js
+// 我们的缓存名称
+var CACHE_NAME = 'sw-cache-v1';
+var cacheFiles = [
+  './',
+  './index.html',
+  './offline.html',
+
+  './static/css/base.css',
+  './static/css/app.css',
+
+  './static/js/libs/jquery.min.js',
+  './static/js/app.js'
+];
+
+/**
+ * Service Worker 生命周期
+ * parsed → installing → installed → activating → activated → redundant。
+ */
+
+// 缓存
+// The first time the user starts up the PWA, 'install' is triggered.
+self.addEventListener('install', function(event) {  // 安装后
+  event.waitUntil(
+    // Open the cache
+    caches.open(CACHE_NAME).then(function(cache) {
+      // Add all the default files to the cache
+      return cache.addAll(cacheFiles);
+    })
+  );
+});
+
+// 缓存更新
+// Delete old caches that are not our current one!
+self.addEventListener('activate', function(event) { // 激活后
+  event.waitUntil(
+    // Get all the cache keys (cacheName)
+    caches.keys().then(function(cacheNames) {
+      return Promise.all(
+        cacheNames.map(function(cacheName) {
+          // 如果当前版本和缓存版本不一致
+          if (cacheName !== CACHE_NAME) {
+            // Delete that cached file
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
+  );
+});
+
+// 捕获请求并返回缓存数据
+// When the webpage goes to fetch files, we intercept that request and serve up the matching files
+self.addEventListener('fetch', function(event) { // 请求后
+  var cached = caches.match(event.request);
+  var fallback = caches.match('offline.html');
+  var fetched = fetch(event.request);
+
+  // event.respondWith()匹配缓存返回结果，匹配不成就直接请求.
+  event.respondWith(
+    cached.then(function(response){
+      return response || fetched;
+    }).catch(function(_){
+      return fallback;
+    })
+  );
+});
+
+```
+
+## 添加到主屏幕
+
+如果你已经搞定 https 协议的配置，我们就可以部署到本地服务器上了， 如果你没有搞定，也没关系， GitHub Pages 就一个很好的演示环境，在GitHub上新建个仓库，生成 GitHub Pages 并强制开启HTTPS， 把我们写的demo Push 上去就行。
+
+PWA有个让人特别激动的特性就是`添加到主屏幕`, 用户可以将其保存到主屏幕，然后像原生应用一样打开它们。
+
+我们只需在项目的根目录中添加一个manifest.json文件。
+
+```
+{
+  "short_name": "My First PWA",
+  "name": "My First Progressive Web App",
+  "icons": [
+    {
+      "src":"icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "display": "standalone"
+}
+```
+
+将icon.png和manifest.json添加到根目录中，然后在index.html中添加以下代码，如head标签中那2行代码。
+
+```
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta name="theme-color" content="#000000">
+  <link rel="manifest" href="./manifest.json">
+</head>
+<body>
+```
 
 ## 了解Cache和CacheStorage
 
