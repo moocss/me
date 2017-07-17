@@ -41,7 +41,6 @@ self.addEventListener("install", function(event) {
         return cache.addAll(precacheFiles);
       })
       .then(function(){
-        // Force the SW to transition from installing -> active state
         return self.skipWaiting()
       })
   );
@@ -65,8 +64,7 @@ self.addEventListener("activate", function(event) {
       })
       .then(
         function() {
-          // Force the SW to transition from installing -> active state
-          return self.skipWaiting();
+          return self.clients.claim()
         }
       )
       .then(function() {

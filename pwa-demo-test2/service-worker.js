@@ -37,6 +37,7 @@ self.addEventListener('activate', function(event) { // 激活后
         cacheNames.map(function(cacheName) {
           // 如果当前版本和缓存版本不一致
           if (cacheName !== CACHE_NAME) {
+            console.log('Service Worker: Removing Old Cache', cacheName);
             return caches.delete(cacheName);
           }
         })
@@ -104,12 +105,13 @@ self.addEventListener('fetch', function(event) { // 请求后
 self.addEventListener("push", event => {
   console.log("Push message received", event);
   const title = "有新动态！";
+  const body = {
+    body: "点击查看新动态！",
+    icon: "./favicon.ico",
+    tag: "新动态"
+  }
   event.waitUntil(
-    self.registration.showNotification(title, {
-      body: "点击查看新动态！",
-      icon: "./favicon.ico",
-      tag: "新动态"
-    })
+    self.registration.showNotification(title, body)
   );
 });
 
@@ -126,4 +128,14 @@ self.addEventListener("notificationclick", function(event) {
       if (clients.openWindow) return clients.openWindow(url);
     })
   );
+  
+  /*
+  const url = './latest.html';
+  //Close the notification
+  event.notification.close(); 
+  // Open the app and navigate to latest.html after clicking the notification
+  event.waitUntil(
+    clients.openWindow(url)
+  );
+  */
 });
